@@ -3,16 +3,30 @@
  * Imports separated modules for clean architecture
  */
 
-import { initSearch, handleClearSearch } from '../src/hooks/useSearchEvents.js';
-
-function initialize() {
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initSearch);
-  } else {
-    initSearch();
+(function() {
+  'use strict';
+  
+  function initialize() {
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', loadSearch);
+    } else {
+      loadSearch();
+    }
   }
-}
 
-initialize();
+  async function loadSearch() {
+    try {
+      const { initSearch, handleClearSearch } = await import('../src/hooks/useSearchEvents.js');
+      await initSearch();
+      if (window) {
+        window.clearBlogSearch = handleClearSearch;
+      }
+    } catch (error) {
+      if (console && console.warn) {
+        console.warn('Failed to load search module:', error);
+      }
+    }
+  }
 
-window.clearBlogSearch = handleClearSearch;
+  initialize();
+})();
